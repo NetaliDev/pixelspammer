@@ -18,7 +18,7 @@ fn draw_image_slice(image_path: &String, offset_x: u32, offset_y: u32, from_x: u
                 let px = img.get_pixel(x, y);
                 let target_x = x + offset_x;
                 let target_y = y + offset_y;
-                let msg = format!("PX {} {} {:X}{:X}{:X}{:X}\n", target_x, target_y, px[0], px[1], px[2], px[3]);
+                let msg = format!("PX {} {} {:X}{:X}{:X}\n", target_x, target_y, px[0], px[1], px[2]);
     
                 stream.write(msg.as_bytes()).expect("Failed to send message!");
             }
