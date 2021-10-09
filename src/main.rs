@@ -7,10 +7,12 @@ use std::thread::JoinHandle;
 
 use image::GenericImageView;
 
-fn draw_image_slice(image_path: &String, offset_x: u32, offset_y: u32, from_x: u32, from_y: u32, to_x: u32, to_y: u32) {
+use clap::{Arg, App}; 
+
+fn draw_image_slice(image_path: &String, host: &String, offset_x: u32, offset_y: u32, from_x: u32, from_y: u32, to_x: u32, to_y: u32) {
     let img = image::open(Path::new(image_path)).expect("Failed to open image!");
 
-    let mut stream = TcpStream::connect("127.0.0.1:1234").expect("Failed to connect!");
+    let mut stream = TcpStream::connect(host).expect("Failed to connect!");
 
     loop {
         for x in from_x..=to_x {
@@ -29,7 +31,7 @@ fn draw_image_slice(image_path: &String, offset_x: u32, offset_y: u32, from_x: u
     //stream.shutdown(Shutdown::Both).expect("Failed to shutdown connection!");
 }
 
-fn slice_image(image_path: &str, slices: u32, offset_x: u32, offset_y: u32) {
+fn slice_image(image_path: &str, host: &str, slices: u32, offset_x: u32, offset_y: u32) {
     let img = image::open(Path::new(image_path)).expect("Failed to open image!");
 
     let x_max = img.dimensions().0 - 1;
@@ -67,9 +69,10 @@ fn slice_image(image_path: &str, slices: u32, offset_x: u32, offset_y: u32) {
             };
 
             let path_string = String::from(image_path);
+            let host_string = String::from(host);
 
             let t = thread::spawn(move || {
-                draw_image_slice(&path_string, offset_x, offset_y, from_x, from_y, to_x, to_y)
+                draw_image_slice(&path_string, &host_string, offset_x, offset_y, from_x, from_y, to_x, to_y)
             });
             
             threads.push(t);
@@ -82,6 +85,59 @@ fn slice_image(image_path: &str, slices: u32, offset_x: u32, offset_y: u32) {
 }
 
 fn main() {
-    //TODO: get command line args
-    slice_image("/home/netali/pixelflut/femlogo.jpg", 4, 350, 350);
+    let matches = App::new("pixelspammer")
+        .version("1.0.0")
+        .author("Netali <me@netali.de>")
+        .about("A simple, multithreaded pixelflut client")
+        .arg(Arg::new("host")
+            .short('h')
+            .long("host")
+            .value_name("IP:PORT")
+            .about("Pixelflut-Server to connect to (IP:Port)")
+            .takes_value(true)
+            .required(true)
+        )
+        .arg(Arg::new("image")
+            .short('i')
+            .long("image")
+            .value_name("FILE")
+            .about("Image file to flood")
+            .takes_value(true)
+            .required(true)
+        )
+        .arg(Arg::new("slices")
+            .short('s')
+            .long("slices")
+            .value_name("SLICES")
+            .about("Number of parts in that each axis should be sliced")
+            .takes_value(true)
+            .required(true)
+        )
+        .arg(Arg::new("offset-x")
+            .short('x')
+            .long("xoffset")
+            .value_name("OFFSET")
+            .about("Offset on the x-axis")
+            .takes_value(true)
+            .required(false)
+            .default_value("0")
+        )
+        .arg(Arg::new("offset-y")
+            .short('y')
+            .long("yoffset")
+            .value_name("OFFSET")
+            .about("Offset on the y-axis")
+            .takes_value(true)
+            .required(false)
+            .default_value("0")
+        )
+        .get_matches();
+
+    let image_path = matches.value_of("image").unwrap();
+    let host = matches.value_of("host").unwrap();
+    let slices: u32 = matches.value_of_t_or_exit("slices");
+    let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
+    let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
+
+    slice_image(image_path, host, slices, offset_x, offset_y);
 }
