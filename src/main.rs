@@ -18,6 +18,10 @@ fn draw_image_slice(image_path: &String, host: &String, offset_x: u32, offset_y:
         for x in from_x..=to_x {
             for y in from_y..=to_y {
                 let px = img.get_pixel(x, y);
+                // skip alpha < 10
+                if px[3] < 10 {
+                    continue;
+                }
                 let target_x = x + offset_x;
                 let target_y = y + offset_y;
                 let msg = format!("PX {} {} {:0>2X}{:0>2X}{:0>2X}{:0>2X}\n", target_x, target_y, px[0], px[1], px[2], px[3]);
