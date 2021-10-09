@@ -4,6 +4,7 @@ version = "1.0.0"
 edition = "2018"
 authors = ["Netali <me@netali.de>"]
 repository = "https://gitlab.fem-net.de/netali/pixelspammer"
+readme = "readme.md"
 license = "AGPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
