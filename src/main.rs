@@ -1,6 +1,5 @@
 use std::io::prelude::Write;
 use std::net::TcpStream;
-use std::net::Shutdown;
 use std::path::Path;
 
 use std::thread;
