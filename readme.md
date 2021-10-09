@@ -1,5 +1,5 @@
 # pixelspammer
-A simple, multithreaded pixelflut client to spam images in slices
+A simple, multithreaded pixelflut client
 
 ## Usage
 ### Without installation
