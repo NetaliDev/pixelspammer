@@ -58,6 +58,19 @@ fn main() {
                     .required(false)
                     .default_value("0")
                 )
+                .arg(Arg::new("no-shuffle")
+                    .long("no-shuffle")
+                    .about("Disable the shuffling of the pixel draw order")
+                    .required(false)
+                )
+                .arg(Arg::new("skip-alpha")
+                    .long("skip-alpha")
+                    .value_name("ALPHA-VALUE")
+                    .about("The alpha value at of which the pixel will be skipped if it is below or equal")
+                    .takes_value(true)
+                    .required(false)
+                    .default_value("10")
+                )
         )
         .subcommand(
             App::new("rect")
@@ -131,8 +144,10 @@ fn main() {
             let slices: u32 = matches.value_of_t_or_exit("slices");
             let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
             let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
+            let shuffle = !matches.is_present("no-shuffle");
+            let skip_alpha: u8 = matches.value_of_t_or_exit("skip-alpha");
     
-            image::draw_image(image_path, host, slices, offset_x, offset_y);
+            image::draw_image(image_path, host, slices, offset_x, offset_y, shuffle, skip_alpha);
         }
         Some("rect") => {
             let matches = matches.subcommand_matches("rect").unwrap();

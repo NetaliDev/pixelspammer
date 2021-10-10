@@ -5,35 +5,21 @@ use std::path::Path;
 use std::thread;
 use std::thread::JoinHandle;
 
+use rand::thread_rng;
+use rand::seq::SliceRandom;
+
 use image::GenericImageView;
 
-fn draw_image_slice(image_path: &String, host: &String, offset_x: u32, offset_y: u32, from_x: u32, from_y: u32, to_x: u32, to_y: u32) {
-    let img = image::open(Path::new(image_path)).expect("Failed to open image!");
-
+fn draw_image_slice(host: String, area: Vec<String>) {
     let mut stream = TcpStream::connect(host).expect("Failed to connect!");
-
     loop {
-        for x in from_x..=to_x {
-            for y in from_y..=to_y {
-                let px = img.get_pixel(x, y);
-                // skip alpha < 10
-                if px[3] < 10 {
-                    continue;
-                }
-                let target_x = x + offset_x;
-                let target_y = y + offset_y;
-                let msg = format!("PX {} {} {:0>2X}{:0>2X}{:0>2X}{:0>2X}\n", target_x, target_y, px[0], px[1], px[2], px[3]);
-    
-                stream.write(msg.as_bytes()).expect("Failed to send message!");
-            }
+        for pos in area.iter() {
+            stream.write(pos.as_bytes()).expect("Failed to send message!");
         }
     }
-
-    //TODO: shutdown on ctrl-c
-    //stream.shutdown(Shutdown::Both).expect("Failed to shutdown connection!");
 }
 
-pub fn draw_image(image_path: &str, host: &str, slices: u32, offset_x: u32, offset_y: u32) {
+pub fn draw_image(image_path: &str, host: &str, slices: u32, offset_x: u32, offset_y: u32, shuffle: bool, skip_alpha: u8) {
     let img = image::open(Path::new(image_path)).expect("Failed to open image!");
 
     let x_max = img.dimensions().0 - 1;
@@ -70,11 +56,31 @@ pub fn draw_image(image_path: &str, host: &str, slices: u32, offset_x: u32, offs
                 to_y = j * slice_y;
             };
 
-            let path_string = String::from(image_path);
+            let mut slice_area: Vec<String> = Vec::new();
+
+            for x in from_x..=to_x {
+                for y in from_y..=to_y {
+                    let px = img.get_pixel(x, y);
+                    // skip alpha
+                    if px[3] <= skip_alpha {
+                        continue;
+                    }
+                    let target_x = x + offset_x;
+                    let target_y = y + offset_y;
+                    let msg = format!("PX {} {} {:0>2X}{:0>2X}{:0>2X}{:0>2X}\n", target_x, target_y, px[0], px[1], px[2], px[3]);
+
+                    slice_area.push(msg);
+                }
+            }
+
+            if shuffle {
+                slice_area.shuffle(&mut thread_rng());
+            }
+
             let host_string = String::from(host);
 
             let t = thread::spawn(move || {
-                draw_image_slice(&path_string, &host_string, offset_x, offset_y, from_x, from_y, to_x, to_y)
+                draw_image_slice(host_string, slice_area)
             });
             
             threads.push(t);
