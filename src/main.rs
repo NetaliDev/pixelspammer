@@ -1,6 +1,7 @@
 use clap::{Arg, App}; 
 
 mod image;
+mod rect;
 
 const VERSION: &str = "1.1.0";
 const AUTHOR: &str = "Netali <me@netali.de>";
@@ -58,6 +59,54 @@ fn main() {
                     .default_value("0")
                 )
         )
+        .subcommand(
+            App::new("rect")
+                .version(VERSION)
+                .author(AUTHOR)
+                .about("Rectangle spammer module")
+                .arg(Arg::new("color")
+                    .short('c')
+                    .long("color")
+                    .value_name("RGB-HEX-COLOR")
+                    .about("Hex-color to fill the rectangle (with optional alpha value)")
+                    .takes_value(true)
+                    .required(true)
+                )
+                .arg(Arg::new("height")
+                    .short('h')
+                    .long("height")
+                    .value_name("HEIGHT")
+                    .about("Height of the rectangle")
+                    .takes_value(true)
+                    .required(true)
+                )
+                .arg(Arg::new("width")
+                    .short('w')
+                    .long("width")
+                    .value_name("WIDTH")
+                    .about("width of the rectangle")
+                    .takes_value(true)
+                    .required(true)
+                )
+                .arg(Arg::new("offset-x")
+                    .short('x')
+                    .long("xoffset")
+                    .value_name("OFFSET")
+                    .about("Offset on the x-axis")
+                    .takes_value(true)
+                    .required(false)
+                    .default_value("0")
+                )
+                .arg(Arg::new("offset-y")
+                    .short('y')
+                    .long("yoffset")
+                    .value_name("OFFSET")
+                    .about("Offset on the y-axis")
+                    .takes_value(true)
+                    .required(false)
+                    .default_value("0")
+                )
+        )
         .get_matches();
 
     let host = matches.value_of("host").unwrap();
@@ -70,7 +119,17 @@ fn main() {
             let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
             let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
     
-            image::slice_image(image_path, host, slices, offset_x, offset_y);
+            image::draw_sliced_image(image_path, host, slices, offset_x, offset_y);
+        }
+        Some("rect") => {
+            let matches = matches.subcommand_matches("rect").unwrap();
+            let color = matches.value_of("color").unwrap();
+            let height: u32 = matches.value_of_t_or_exit("height");
+            let width: u32 = matches.value_of_t_or_exit("width");
+            let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
+            let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
+
+            rect::draw_rect(host, color, height, width, offset_x, offset_y);
         }
         None => {
             println!("No subcommand specified!");

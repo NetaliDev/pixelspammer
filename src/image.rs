@@ -33,7 +33,7 @@ fn draw_image_slice(image_path: &String, host: &String, offset_x: u32, offset_y:
     //stream.shutdown(Shutdown::Both).expect("Failed to shutdown connection!");
 }
 
-pub fn slice_image(image_path: &str, host: &str, slices: u32, offset_x: u32, offset_y: u32) {
+pub fn draw_sliced_image(image_path: &str, host: &str, slices: u32, offset_x: u32, offset_y: u32) {
     let img = image::open(Path::new(image_path)).expect("Failed to open image!");
 
     let x_max = img.dimensions().0 - 1;
