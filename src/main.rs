@@ -147,6 +147,14 @@ fn main() {
                     .takes_value(true)
                     .required(true)
                 )
+                .arg(Arg::new("slices")
+                    .short('s')
+                    .long("slices")
+                    .value_name("SLICES")
+                    .about("Number of threads that should draw the circle")
+                    .takes_value(true)
+                    .required(true)
+                )
                 .arg(Arg::new("radius")
                     .short('r')
                     .long("radius")
@@ -172,6 +180,11 @@ fn main() {
                     .takes_value(true)
                     .required(false)
                     .default_value("0")
+                )
+                .arg(Arg::new("no-shuffle")
+                    .long("no-shuffle")
+                    .about("Disable the shuffling of the pixel draw order")
+                    .required(false)
                 )
         )
         .get_matches();
@@ -205,11 +218,13 @@ fn main() {
         Some("circle") => {
             let matches = matches.subcommand_matches("circle").unwrap();
             let color = matches.value_of("color").unwrap();
-            let radius: u32 = matches.value_of_t_or_exit("radius");
-            let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
-            let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
+            let slices: u8 = matches.value_of_t_or_exit("slices");
+            let radius: u16 = matches.value_of_t_or_exit("radius");
+            let offset_x: u16 = matches.value_of_t_or_exit("offset-x");
+            let offset_y: u16 = matches.value_of_t_or_exit("offset-y");
+            let shuffle = !matches.is_present("no-shuffle");
 
-            circle::draw_circle(host, radius, offset_x, offset_y, color);
+            circle::draw_circle(host, color, slices, radius, offset_x, offset_y, shuffle);
         }
         None => {
             println!("No subcommand specified!");
