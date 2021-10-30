@@ -2,6 +2,7 @@ use clap::{Arg, App};
 
 mod image;
 mod rect;
+mod circle;
 
 const VERSION: &str = "1.2.0";
 const AUTHOR: &str = "Netali <me@netali.de>";
@@ -133,6 +134,46 @@ fn main() {
                     .required(false)
                 )
         )
+        .subcommand(
+            App::new("circle")
+                .version(VERSION)
+                .author(AUTHOR)
+                .about("Circle spammer module (work in progress)")
+                .arg(Arg::new("color")
+                    .short('c')
+                    .long("color")
+                    .value_name("RGB-HEX-COLOR")
+                    .about("Hex-color of the circle (with optional alpha value)")
+                    .takes_value(true)
+                    .required(true)
+                )
+                .arg(Arg::new("radius")
+                    .short('r')
+                    .long("radius")
+                    .value_name("RADIUS")
+                    .about("Radius of the circle")
+                    .takes_value(true)
+                    .required(true)
+                )
+                .arg(Arg::new("offset-x")
+                    .short('x')
+                    .long("xoffset")
+                    .value_name("OFFSET")
+                    .about("Offset on the x-axis")
+                    .takes_value(true)
+                    .required(false)
+                    .default_value("0")
+                )
+                .arg(Arg::new("offset-y")
+                    .short('y')
+                    .long("yoffset")
+                    .value_name("OFFSET")
+                    .about("Offset on the y-axis")
+                    .takes_value(true)
+                    .required(false)
+                    .default_value("0")
+                )
+        )
         .get_matches();
 
     let host = matches.value_of("host").unwrap();
@@ -160,6 +201,15 @@ fn main() {
             let shuffle = !matches.is_present("no-shuffle");
 
             rect::draw_rect(host, color, slices, height, width, offset_x, offset_y, shuffle);
+        }
+        Some("circle") => {
+            let matches = matches.subcommand_matches("circle").unwrap();
+            let color = matches.value_of("color").unwrap();
+            let radius: u32 = matches.value_of_t_or_exit("radius");
+            let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
+            let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
+
+            circle::draw_circle(host, radius, offset_x, offset_y, color);
         }
         None => {
             println!("No subcommand specified!");
