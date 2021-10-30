@@ -10,10 +10,11 @@ use rand::seq::SliceRandom;
 
 fn draw_rect_slice(host: String, area: Vec<String>) {
     let mut stream = TcpStream::connect(host).expect("Failed to connect!");
+    
+    let area_string: String = area.into_iter().collect();
+
     loop {
-        for pos in area.iter() {
-            stream.write(pos.as_bytes()).expect("Failed to send message!");
-        }
+        stream.write(area_string.as_bytes()).expect("Failed to send message!");
     }
 }
 
