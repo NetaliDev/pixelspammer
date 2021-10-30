@@ -20,6 +20,19 @@ fn main() {
             .takes_value(true)
             .required(true)
         )
+        .arg(Arg::new("slices")
+            .short('s')
+            .long("slices")
+            .value_name("SLICES")
+            .about("Number of threads used to draw")
+            .takes_value(true)
+            .required(true)
+        )
+        .arg(Arg::new("no-shuffle")
+            .long("no-shuffle")
+            .about("Disable the shuffling of the pixel draw order")
+            .required(false)
+        )
         .subcommand(
             App::new("image")
                 .version(VERSION)
@@ -30,14 +43,6 @@ fn main() {
                     .long("image")
                     .value_name("FILE")
                     .about("Image file to flood")
-                    .takes_value(true)
-                    .required(true)
-                )
-                .arg(Arg::new("slices")
-                    .short('s')
-                    .long("slices")
-                    .value_name("SLICES")
-                    .about("Number of parts in that each axis should be sliced")
                     .takes_value(true)
                     .required(true)
                 )
@@ -59,11 +64,6 @@ fn main() {
                     .required(false)
                     .default_value("0")
                 )
-                .arg(Arg::new("no-shuffle")
-                    .long("no-shuffle")
-                    .about("Disable the shuffling of the pixel draw order")
-                    .required(false)
-                )
                 .arg(Arg::new("skip-alpha")
                     .long("skip-alpha")
                     .value_name("ALPHA-VALUE")
@@ -83,14 +83,6 @@ fn main() {
                     .long("color")
                     .value_name("RGB-HEX-COLOR")
                     .about("Hex-color to fill the rectangle (with optional alpha value)")
-                    .takes_value(true)
-                    .required(true)
-                )
-                .arg(Arg::new("slices")
-                    .short('s')
-                    .long("slices")
-                    .value_name("SLICES")
-                    .about("Number of parts in that each axis should be sliced")
                     .takes_value(true)
                     .required(true)
                 )
@@ -128,30 +120,17 @@ fn main() {
                     .required(false)
                     .default_value("0")
                 )
-                .arg(Arg::new("no-shuffle")
-                    .long("no-shuffle")
-                    .about("Disable the shuffling of the pixel draw order")
-                    .required(false)
-                )
         )
         .subcommand(
             App::new("circle")
                 .version(VERSION)
                 .author(AUTHOR)
-                .about("Circle spammer module (work in progress)")
+                .about("Circle spammer module")
                 .arg(Arg::new("color")
                     .short('c')
                     .long("color")
                     .value_name("RGB-HEX-COLOR")
                     .about("Hex-color of the circle (with optional alpha value)")
-                    .takes_value(true)
-                    .required(true)
-                )
-                .arg(Arg::new("slices")
-                    .short('s')
-                    .long("slices")
-                    .value_name("SLICES")
-                    .about("Number of threads that should draw the circle")
                     .takes_value(true)
                     .required(true)
                 )
@@ -181,24 +160,19 @@ fn main() {
                     .required(false)
                     .default_value("0")
                 )
-                .arg(Arg::new("no-shuffle")
-                    .long("no-shuffle")
-                    .about("Disable the shuffling of the pixel draw order")
-                    .required(false)
-                )
         )
         .get_matches();
 
     let host = matches.value_of("host").unwrap();
+    let slices: u8 = matches.value_of_t_or_exit("slices");
+    let shuffle = !matches.is_present("no-shuffle");
 
     match matches.subcommand_name() {
         Some("image") => {
             let matches = matches.subcommand_matches("image").unwrap();
             let image_path = matches.value_of("image").unwrap();
-            let slices: u32 = matches.value_of_t_or_exit("slices");
             let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
             let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
-            let shuffle = !matches.is_present("no-shuffle");
             let skip_alpha: u8 = matches.value_of_t_or_exit("skip-alpha");
     
             image::draw_image(image_path, host, slices, offset_x, offset_y, shuffle, skip_alpha);
@@ -206,23 +180,19 @@ fn main() {
         Some("rect") => {
             let matches = matches.subcommand_matches("rect").unwrap();
             let color = matches.value_of("color").unwrap();
-            let slices: u32 = matches.value_of_t_or_exit("slices");
             let height: u32 = matches.value_of_t_or_exit("height");
             let width: u32 = matches.value_of_t_or_exit("width");
             let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
             let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
-            let shuffle = !matches.is_present("no-shuffle");
 
             rect::draw_rect(host, color, slices, height, width, offset_x, offset_y, shuffle);
         }
         Some("circle") => {
             let matches = matches.subcommand_matches("circle").unwrap();
             let color = matches.value_of("color").unwrap();
-            let slices: u8 = matches.value_of_t_or_exit("slices");
             let radius: u16 = matches.value_of_t_or_exit("radius");
             let offset_x: u16 = matches.value_of_t_or_exit("offset-x");
             let offset_y: u16 = matches.value_of_t_or_exit("offset-y");
-            let shuffle = !matches.is_present("no-shuffle");
 
             circle::draw_circle(host, color, slices, radius, offset_x, offset_y, shuffle);
         }
