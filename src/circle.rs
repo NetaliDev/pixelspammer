@@ -1,21 +1,10 @@
-use std::io::prelude::Write;
-use std::net::TcpStream;
-
 use std::thread;
 use std::thread::JoinHandle;
 
 use rand::thread_rng;
 use rand::seq::SliceRandom;
 
-fn draw_circle_slice(host: String, area: Vec<String>) {
-    let mut stream = TcpStream::connect(host).expect("Failed to connect!");
-    
-    let area_string: String = area.into_iter().collect();
-
-    loop {
-        stream.write(area_string.as_bytes()).expect("Failed to send message!");
-    }
-}
+use crate::utils;
 
 pub fn draw_circle(host: &str, color: &str, slices: u8, radius: u16, center_x: u16, center_y: u16, shuffle: bool) {
     let center_x = center_x as i32;
@@ -90,7 +79,7 @@ pub fn draw_circle(host: &str, color: &str, slices: u8, radius: u16, center_x: u
         }
 
         let t = thread::spawn(move || {
-            draw_circle_slice(host_string, slice_area);
+            utils::draw_area(host_string, slice_area);
         });
         
         threads.push(t);

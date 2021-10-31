@@ -1,5 +1,3 @@
-use std::io::prelude::Write;
-use std::net::TcpStream;
 use std::path::Path;
 
 use std::thread;
@@ -8,17 +6,9 @@ use std::thread::JoinHandle;
 use rand::thread_rng;
 use rand::seq::SliceRandom;
 
+use crate::utils;
+
 use image::GenericImageView;
-
-fn draw_image_slice(host: String, area: Vec<String>) {
-    let mut stream = TcpStream::connect(host).expect("Failed to connect!");
-
-    let area_string: String = area.into_iter().collect();
-
-    loop {
-        stream.write(area_string.as_bytes()).expect("Failed to send message!");
-    }
-}
 
 pub fn draw_image(image_path: &str, host: &str, slices: u8, offset_x: u32, offset_y: u32, shuffle: bool, skip_alpha: u8) {
     let img = image::open(Path::new(image_path)).expect("Failed to open image!");
@@ -68,7 +58,7 @@ pub fn draw_image(image_path: &str, host: &str, slices: u8, offset_x: u32, offse
         }
 
         let t = thread::spawn(move || {
-            draw_image_slice(host_string, slice_area);
+            utils::draw_area(host_string, slice_area);
         });
         
         threads.push(t);

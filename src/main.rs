@@ -3,6 +3,7 @@ use clap::{Arg, App};
 mod image;
 mod rect;
 mod circle;
+mod utils;
 
 const VERSION: &str = "1.4.0";
 const AUTHOR: &str = "Netali <me@netali.de>";
