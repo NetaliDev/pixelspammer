@@ -191,9 +191,9 @@ fn main() {
         Some("circle") => {
             let matches = matches.subcommand_matches("circle").unwrap();
             let color = matches.value_of("color").unwrap();
-            let radius: u16 = matches.value_of_t_or_exit("radius");
-            let offset_x: u16 = matches.value_of_t_or_exit("offset-x");
-            let offset_y: u16 = matches.value_of_t_or_exit("offset-y");
+            let radius: u32 = matches.value_of_t_or_exit("radius");
+            let offset_x: u32 = matches.value_of_t_or_exit("offset-x");
+            let offset_y: u32 = matches.value_of_t_or_exit("offset-y");
 
             circle::draw_circle(host, color, slices, radius, offset_x, offset_y, shuffle);
         }

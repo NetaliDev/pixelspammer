@@ -6,7 +6,7 @@ use rand::seq::SliceRandom;
 
 use crate::utils;
 
-pub fn draw_circle(host: &str, color: &str, slices: u8, radius: u16, center_x: u16, center_y: u16, shuffle: bool) {
+pub fn draw_circle(host: &str, color: &str, slices: u8, radius: u32, center_x: u32, center_y: u32, shuffle: bool) {
     let center_x = center_x as i32;
     let center_y = center_y as i32;
 
