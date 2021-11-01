@@ -5,7 +5,7 @@ mod rect;
 mod circle;
 mod utils;
 
-const VERSION: &str = "1.4.1";
+const VERSION: &str = "1.4.2";
 const AUTHOR: &str = "Netali <me@netali.de>";
 
 fn main() {

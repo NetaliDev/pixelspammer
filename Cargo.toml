@@ -1,6 +1,6 @@
 [package]
 name = "pixelspammer"
-version = "1.4.1"
+version = "1.4.2"
 edition = "2018"
 authors = ["Netali <me@netali.de>"]
 repository = "https://gitlab.fem-net.de/netali/pixelspammer"
